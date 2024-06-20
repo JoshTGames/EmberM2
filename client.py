@@ -6,6 +6,7 @@ class NewClient(discord.Client):
         self.synced = False
         self.tree = None
         self.cronFunction = None
+        self.userCrons = {}
 
         self.commandPath = commandDataPath
         self.commandData = json_manager.ReadFile(commandDataPath)
@@ -23,19 +24,31 @@ class NewClient(discord.Client):
 
             await self.changePresence()
             aiocron.crontab('0 */1 * * *', func=self.changePresence, start=True)
+
+
+            for k, v in self.commandData['userPings'].items():
+                aiocron.crontab(v, func=self.ping_user, start=True, args=(k,))
             print(f'#_- {self.user} Online! -_#')
 
     async def changePresence(self):
         await self.change_presence(activity= discord.Game(self.presence[random.randint(0, len(self.presence) - 1)]));
+    
+    async def ping_user(self, userId):
+        user = await self.fetch_user(userId)
+        thread = await self.fetch_channel(self.commandData['previousThreadId'])
+        if(thread == None or user == None): return # Stops any weirdness
+
+        await user.send(f'✨Hello, this is your reminder to update the team on your progress!✨ \n{thread.jump_url}\n\nIf you no longer wish to recieve custom reminders, please type `/removereminder` in this server')
+
 
     async def manage_thread(self):
         # Archive old thread
-        previousThread = self.get_channel(self.commandData['previousThreadId'])
+        previousThread = await self.fetch_channel(self.commandData['previousThreadId'])
         if(previousThread):
             await previousThread.edit(archived=True)
 
         # Get Forum
-        forum = self.get_channel(self.commandData['scrumForumId'])
+        forum = await self.fetch_channel(self.commandData['scrumForumId'])
         if(forum is None): return
 
         
