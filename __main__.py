@@ -36,7 +36,7 @@ async def self(interaction: discord.Interaction):
     await interaction.user.remove_roles(role)
     await interaction.response.send_message(f'✅You no longer have the {role.name} role! | (You will no longer recieve scrum notifications)✅', ephemeral= True)
 
-@_client.tree.command(name='gettimekey', description='Returns the time-key that is used to ping everyone at a specific time.')
+@_client.tree.command(name='gettimekey', description='Returns the time-key that is used to ping everyone at a specific time')
 async def self(interaction: discord.Interaction):
     await interaction.response.send_message(f'✨Here is the current cron key **{_client.commandData["crontabKey"]}**✨', ephemeral=True)
 
@@ -56,7 +56,7 @@ async def self(interaction: discord.Interaction, cronkey: str):
     _client.userCrons[interaction.user.id] = aiocron.crontab(cronkey, func= _client.ping_user, start= True, args=(interaction.user.id,))
     await interaction.response.send_message(f'🔔Successfully set the custom time you\'ll be pinged🔔', ephemeral= True)
 
-@_client.tree.command(name='removereminder', description='Stops your custom reminder.')
+@_client.tree.command(name='removereminder', description='Stops your custom reminder')
 async def self(interaction: discord.Interaction):
     if(not str(interaction.user.id) in _client.commandData['userPings']):
         await interaction.response.send_message(f'🚫You have no custom reminders to remove🚫', ephemeral=True)
@@ -105,6 +105,11 @@ async def self(interaction: discord.Interaction):
     print(f'{interaction.user} has issued a shutdown!')
     await interaction.response.send_message(f'🤖Shutting down...🤖', ephemeral= True)
     sys.exit(0)
+
+@_client.tree.command(name='forcecreatethread', description='Forces the bot to create a new thread | ADMIN')
+async def self(interaction: discord.Interaction):
+    await _client.manage_thread()
+    await interaction.response.send_message(f'✅Successfully created new thread✅', ephemeral= True)
 
 
 # -- Main -- #
