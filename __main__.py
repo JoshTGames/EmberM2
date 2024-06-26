@@ -10,6 +10,11 @@ commandsDir = os.getcwd() + '/command_data.json'
 _client = client.NewClient(intents=discord.Intents.default(), commandDataPath=commandsDir)
 _client.tree = app_commands.CommandTree(_client)
 
+# Reactions
+@_client.event
+async def on_message(msg):
+    if(msg.channel.id != _client.commandData['previousThreadId']): return
+    await msg.add_reaction('🩵')
 
 #region USER COMMANDS
 @_client.tree.command(name='subscribe', description='Subscribes you to recieve daily notifications on scrum updates!')
